@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>🎁 선물 뽑기</title>
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/static/pretendard.css">
+
+  <style>
+    :root{
+      --bg1:#0b1020; --bg2:#0a1a2a;
+      --card: rgba(255,255,255,.07);
+      --border: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.70);
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --radius: 18px; --radius2: 14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Pretendard, system-ui, -apple-system, Segoe UI, Roboto, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 15% 10%, #1e3a8a 0%, transparent 55%),
+        radial-gradient(900px 650px at 80% 15%, #0ea5e9 0%, transparent 55%),
+        radial-gradient(900px 650px at 60% 85%, #a78bfa 0%, transparent 55%),
+        linear-gradient(160deg, var(--bg1), var(--bg2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .wrap{ width:min(780px, 100%); }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
+    header{
+      padding:18px 18px 10px;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    }
+    h1{ margin:0; font-size:18px; letter-spacing:-.2px; }
+    .sub{ margin:6px 0 0; font-size:13px; color:var(--muted); line-height:1.45; }
+    .badge{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color:rgba(255,255,255,.82);
+      white-space:nowrap;
+    }
+    .content{ padding:18px; display:grid; gap:14px; }
+    .row{ display:grid; gap:10px; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 520px){ .row{grid-template-columns:1fr} }
+    label{ display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+    select, input{
+      width:100%; padding:12px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      color:var(--text);
+      outline:none;
+    }
+    select:focus, input:focus{
+      border-color: rgba(255,255,255,.28);
+      box-shadow: 0 0 0 4px rgba(59,130,246,.18);
+    }
+    .btns{ display:flex; flex-wrap:wrap; gap:10px; }
+    button{
+      border:0; padding:11px 12px; border-radius: 14px; cursor:pointer;
+      color:rgba(255,255,255,.92);
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+      user-select:none;
+    }
+    button:hover{ background: rgba(255,255,255,.14); border-color: rgba(255,255,255,.26); }
+    button:active{ transform: translateY(1px); }
+    button.primary{
+      background: linear-gradient(135deg, rgba(59,130,246,.85), rgba(168,85,247,.75));
+      border-color: rgba(255,255,255,.22);
+    }
+    .result{
+      padding:16px; border-radius: var(--radius2);
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(0,0,0,.18);
+      min-height:96px;
+      display:flex; flex-direction:column; justify-content:center; gap:6px;
+    }
+    .kicker{ font-size:12px; color:var(--muted); }
+    .main{
+      font-size:22px; font-weight:800; letter-spacing:-.4px;
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 10px; border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      font-size:13px; color: rgba(255,255,255,.86);
+    }
+    .hint{ font-size:12px; color:var(--muted); line-height:1.55; }
+    .toast{
+      position: fixed; left:50%; bottom:18px; transform: translateX(-50%);
+      background: rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.16);
+      padding:10px 12px; border-radius:999px;
+      color:rgba(255,255,255,.88); font-size:12px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.45);
+      opacity:0; pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <section class="card">
+      <header>
+        <div>
+          <h1>🎁 제 4회 오예스 연말파티</h1>
+          <p class="sub">돌아온 선물 뽑기 시간</p>
+        </div>
+        <div class="badge" id="stateBadge">세션: -</div>
+      </header>
+
+      <div class="content">
+        <div class="row">
+          <div>
+            <label for="me">내 이름</label>
+            <select id="me"></select>
+          </div>
+          <!-- <div>
+            <label for="pin">PIN (선택, 세션에 걸려있을 때만 필요)</label>
+            <input id="pin" type="password" inputmode="numeric" placeholder="PIN이 있으면 입력" />
+          </div> -->
+        </div>
+
+        <div>
+          <label for="seedInput">PIN (올 한 해 의미 있었던 숫자를 정해요)</label>
+          <input id="seedInput" inputmode="numeric" placeholder="예: 12345678" />
+        </div>
+
+        <div class="btns">
+          <button class="primary" id="btnReveal">👀 내 결과 보기</button>
+          <!-- <button id="btnHandover">🙈 숨기고 다음 사람에게</button> -->
+        </div>
+
+        <div class="result">
+          <div class="kicker">결과 영역</div>
+          <div class="main" id="resultMain">세션 코드가 필요해요. <span class="pill">PIN 입력</span></div>
+          <div class="hint" id="resultHint"></div>
+        </div>
+
+        <div class="hint">
+          ※ 올 한해 고생 많으셨습니다 ※<br/>
+            © 2025 Jack 김재욱, All rights reserved.
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const PEOPLE = ["재윤","재욱","태윤","예린","규리","서연"];
+
+    const $ = (id) => document.getElementById(id);
+    const toast = (msg) => {
+      const t = $("toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(toast._tm);
+      toast._tm = setTimeout(()=>t.classList.remove("show"), 1600);
+    };
+
+    function initSelect(){
+      const sel = $("me");
+      sel.innerHTML = "";
+      PEOPLE.forEach(p=>{
+        const opt = document.createElement("option");
+        opt.value = p; opt.textContent = p;
+        sel.appendChild(opt);
+      });
+    }
+
+    // --- Seeded RNG (mulberry32) ---
+    function mulberry32(seed){
+      let t = seed >>> 0;
+      return function(){
+        t += 0x6D2B79F5;
+        let r = Math.imul(t ^ (t >>> 15), 1 | t);
+        r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+        return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+      }
+    }
+
+    function parseSeedFromURL(){
+      const u = new URL(location.href);
+      const s = u.searchParams.get("seed");
+      return s ? s.trim() : "";
+    }
+    function parsePinFromURL(){
+      const u = new URL(location.href);
+      const p = u.searchParams.get("pin");
+      return p ? p.trim() : "";
+    }
+
+    function makeDerangementSeeded(arr, rng){
+      const n = arr.length;
+      const src = [...arr];
+      for (let tries=0; tries<20000; tries++){
+        const perm = [...src];
+        for (let i=n-1; i>0; i--){
+          const j = Math.floor(rng() * (i+1));
+          [perm[i], perm[j]] = [perm[j], perm[i]];
+        }
+        let ok = true;
+        for (let i=0; i<n; i++){
+          if (perm[i] === src[i]) { ok=false; break; }
+        }
+        if (ok) return perm;
+      }
+      // fallback (deterministic)
+      return src.slice(1).concat(src[0]);
+    }
+
+    function buildAssignment(seedStr){
+      const seedNum = Number(seedStr);
+      if (!Number.isFinite(seedNum)) return null;
+      const rng = mulberry32(seedNum);
+      const perm = makeDerangementSeeded(PEOPLE, rng);
+      const map = {};
+      for (let i=0; i<PEOPLE.length; i++){
+        map[PEOPLE[i]] = perm[i];
+      }
+      return map;
+    }
+
+    function requirePinIfSet(){
+      const pinSet = parsePinFromURL();
+      if (!pinSet) return true;
+      const inputPin = $("pin").value.trim();
+      if (inputPin === pinSet) return true;
+      toast("PIN이 일치하지 않아요.");
+      return false;
+    }
+
+    function updateBadge(seed){
+      $("stateBadge").textContent = seed ? `세션: ${seed}` : "세션: -";
+    }
+
+    function getSeed(){
+      const fromUrl = parseSeedFromURL();
+      const fromInput = $("seedInput").value.trim();
+      const seed = fromUrl || fromInput;
+      return seed;
+    }
+
+    function revealMine(){
+      const seed = getSeed();
+      if (!seed){
+        toast("seed가 필요해요. 링크에 seed를 포함하거나 입력해 주세요.");
+        return;
+      }
+      if (!requirePinIfSet()) return;
+
+      const a = buildAssignment(seed);
+      if (!a){
+        toast("seed 형식이 올바르지 않아요(숫자).");
+        return;
+      }
+
+      updateBadge(seed);
+      const me = $("me").value;
+      const got = a[me];
+      $("resultMain").innerHTML = `<span class="pill">🙋 ${me}</span> 님이 뽑은 선물은… <span class="pill">🎁 ${got}</span> !`;
+      $("resultHint").textContent = `${got}`+"에게 해 줄 덕담 한 마디를 생각해주세요";
+      toast("결과를 표시했어요.");
+    }
+
+    function handover(){
+      $("pin").value = "";
+      $("resultMain").innerHTML = `화면 숨김 완료 🙈 <span class="pill">다음 사람이 이름 선택 → 결과 보기</span>`;
+      $("resultHint").textContent = "seed는 유지됩니다. (배정 고정)";
+      toast("다음 사람 차례!");
+    }
+
+    // Boot
+    initSelect();
+
+    // URL seed가 있으면 UI에도 채워주기
+    const urlSeed = parseSeedFromURL();
+    if (urlSeed) $("seedInput").value = urlSeed;
+
+    updateBadge(urlSeed);
+
+    $("btnReveal").addEventListener("click", revealMine);
+    $("btnHandover").addEventListener("click", handover);
+  </script>
+</body>
+</html>
